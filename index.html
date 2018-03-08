@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="UTF-8">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <meta name="author" content="Mauricio Lauffer">
+    <title>Storage Test</title>
+    <script src="https://openui5.hana.ondemand.com/resources/sap-ui-core.js" id="sap-ui-bootstrap"
+            data-sap-ui-libs="sap.m" data-sap-ui-theme="sap_bluecrystal">
+    </script>
+    <script type="text/javascript">
+      var data = {
+        "Collection" : [ {
+          "id" : "1"
+        } ]
+      };
+      //Create Model
+      var oModel = new sap.ui.model.json.JSONModel();
+      oModel.setData(data);
+      //Storage
+      jQuery.sap.require("jquery.sap.storage");
+      oStorage = jQuery.sap.storage(jQuery.sap.storage.Type.local);
+      //Check if there is data into the Storage
+      if (oStorage.get("myLocalData")) {
+        console.log("Data is from Storage!");
+        var oData = oStorage.get("myLocalData");
+        oModel.setData(oData);
+      }
+      //Create Elements
+      var oList = new sap.m.List("localStorage");
+      var oBtn1 = new sap.m.Button({
+        icon : "sap-icon://add",
+        text : "Add to Model and Storage",
+        press : function() {
+          var oNew = {
+            id : $.now()
+          };
+          var oData = oModel.getData();
+          oData.Collection.push(oNew);
+          oModel.refresh(true);
+          oStorage.put("myLocalData", oData);
+        }
+      });
+      var oBtn2 = new sap.m.Button({
+        icon : "sap-icon://delete",
+        text : "Clear Storage",
+        press : function() {
+          oStorage.clear();
+        }
+      });
+      var oPage = new sap.m.Page("page1", {
+        title : "Storage Test",
+        content : [ oList ],
+        subHeader : new sap.m.Bar({
+          contentRight : [ oBtn1, oBtn2 ]
+        })
+      });
+      //Create Application
+      var oApp = new sap.m.App("myApp");
+      oApp.setModel(oModel);
+      oApp.addPage(oPage);
+      oApp.placeAt("content");
+      //Binding
+      oList.bindItems("/Collection", new sap.m.StandardListItem({
+        title : "{id}",
+        description : "Local Storage"
+      }));
+    </script>
+</head>
+<body class="sapUiBody" role="application">
+<div id="content"></div>
+</body>
+</html>
